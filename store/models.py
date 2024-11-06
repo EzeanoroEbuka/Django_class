@@ -33,6 +33,7 @@ class Product(models.Model):
 
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class Order(models.Model):
@@ -85,3 +86,13 @@ class Promotion(models.Model):
 
     product = models.ManyToManyField(Product, related_name='+')
 
+
+class Review(models.Model):
+
+    title = models.CharField(max_length=255, blank=False)
+
+    content = models.TextField()
+
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
