@@ -7,6 +7,8 @@ from . import views
 route = DefaultRouter()
 route.register('collections', views.CollectionViewSet, basename='collections')
 route.register('products', views.ProductViewSet, basename='products')
+route.register('carts', views.CartViewSet, basename='carts')
+
 
 product_route = NestedDefaultRouter(route, 'products', lookup='product')
 product_route.register('reviews', views.ReviewViewSet, basename='product-review')

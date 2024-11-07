@@ -6,12 +6,12 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Collection, Review
+from .models import Collection, Review, Cart
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
 from .serializer import ProductSerializer, CollectionSerializer, CreateProductSerializer, CreateReviewSerializer, \
-    ReviewSerializer
+    ReviewSerializer, CreateCartSerializer, CartSerializer
 from .models import Product
 
 
@@ -45,7 +45,21 @@ class ReviewViewSet(ModelViewSet):
         return ReviewSerializer
 
 
-# class CartItem(ModelViewSet):
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+
+    # def get_queryset(self):
+    #     customer = self.kwargs['customer_pk']
+    #     return Cart.objects.filter(customer_id=customer)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return CartSerializer
+        elif self.request.method == 'POST':
+            return CreateCartSerializer
+        return CartSerializer
+
+
 
 # class ProductList(ListCreateAPIView):
 #     queryset = Product.objects.all()

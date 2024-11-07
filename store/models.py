@@ -34,6 +34,7 @@ class Product(models.Model):
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
 
 class Order(models.Model):
@@ -66,7 +67,7 @@ class OrderItem(models.Model):
 
     quantity = models.PositiveSmallIntegerField()
 
-    unit_price = models.DecimalField(max_digits=6,decimal_places=2)
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
 
 
 class Address(models.Model):

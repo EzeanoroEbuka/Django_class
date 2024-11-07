@@ -2,7 +2,7 @@ import decimal
 from decimal import Decimal
 
 from rest_framework import serializers
-from store.models import Product, Collection, Review
+from store.models import Product, Collection, Review, Cart
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -12,9 +12,9 @@ class CollectionSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-
     # collection = serializers.HyperlinkedRelatedField(
     collection = CollectionSerializer()
+
     #     queryset=Collection.objects.all(), view_name='collection-detail'
     # )
 
@@ -45,3 +45,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['title', 'content']
 
+
+class CreateCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['customer']
+
+
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['created_at', 'customer']
