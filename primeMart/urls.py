@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 admin.site.site_header = 'PrimeMart Administration'
 admin.site.index_title = 'PrimeMart Admin'
@@ -23,8 +24,9 @@ admin.site.index_title = 'PrimeMart Admin'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path('auth/', include('djoser.urls')),
     path('demo/', include("demo.urls")),
-
     path('store/', include("store.urls")),
-]
+
+    ] + debug_toolbar_urls()
+

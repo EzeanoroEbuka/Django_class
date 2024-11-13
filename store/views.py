@@ -18,7 +18,7 @@ from .models import Product
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('collection__product_set').all()
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
     pagination_class = PageNumberPagination
@@ -50,7 +50,7 @@ class ReviewViewSet(ModelViewSet):
 
 
 class CartViewSet(ModelViewSet):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer
 
 
