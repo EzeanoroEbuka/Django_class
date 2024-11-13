@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db import models
 from  django.conf import settings
 
@@ -16,7 +18,7 @@ class Product(models.Model):
 
     price = models.DecimalField(max_digits=6, decimal_places=2, null=False, blank=False)
 
-    Inventory = models.PositiveSmallIntegerField()
+    inventory = models.PositiveSmallIntegerField()
 
     last_update = models.DateTimeField(auto_now=True)
 
@@ -32,9 +34,8 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
+    # id = models.UUIDField(primary_key=True, default=uuid4)
     created_at = models.DateTimeField(auto_now=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
 
 class Order(models.Model):
@@ -54,7 +55,7 @@ class Order(models.Model):
 class CartItem(models.Model):
     quantity = models.PositiveSmallIntegerField()
 
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
@@ -96,4 +97,4 @@ class Review(models.Model):
 
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='reviews')

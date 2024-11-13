@@ -2,23 +2,26 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Collection, Review, Cart
-from rest_framework.generics import ListCreateAPIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from .filter import ProductFilter
+from .models import Collection, Review, Cart, CartItem
 
+from rest_framework.pagination import PageNumberPagination
 from .serializer import ProductSerializer, CollectionSerializer, CreateProductSerializer, CreateReviewSerializer, \
-    ReviewSerializer, CreateCartSerializer, CartSerializer
+    ReviewSerializer, CartSerializer, CartItemSerializer
 from .models import Product
 
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
-
-    # serializer_class = CreateProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
+    pagination_class = PageNumberPagination
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -31,6 +34,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
+    pagination_class = PageNumberPagination
 
 
 class ReviewViewSet(ModelViewSet):
@@ -45,20 +49,14 @@ class ReviewViewSet(ModelViewSet):
         return ReviewSerializer
 
 
-class CartViewSet(viewsets.ModelViewSet):
+class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
+    serializer_class = CartSerializer
 
-    # def get_queryset(self):
-    #     customer = self.kwargs['customer_pk']
-    #     return Cart.objects.filter(customer_id=customer)
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return CartSerializer
-        elif self.request.method == 'POST':
-            return CreateCartSerializer
-        return CartSerializer
-
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
 
 
 # class ProductList(ListCreateAPIView):

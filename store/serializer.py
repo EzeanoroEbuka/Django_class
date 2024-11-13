@@ -2,7 +2,7 @@ import decimal
 from decimal import Decimal
 
 from rest_framework import serializers
-from store.models import Product, Collection, Review, Cart
+from store.models import Product, Collection, Review, Cart, CartItem
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -15,12 +15,9 @@ class ProductSerializer(serializers.ModelSerializer):
     # collection = serializers.HyperlinkedRelatedField(
     collection = CollectionSerializer()
 
-    #     queryset=Collection.objects.all(), view_name='collection-detail'
-    # )
-
     class Meta:
         model = Product
-        fields = ['id', 'title', 'price', 'Inventory', 'price_with_discount', 'collection']
+        fields = ['id', 'title', 'price', 'inventory', 'price_with_discount', 'collection']
 
     price_with_discount = serializers.SerializerMethodField(method_name='discount')
 
@@ -31,7 +28,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class CreateProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['title', 'price', 'description', 'Inventory', 'collection']
+        fields = ['title', 'price', 'description', 'inventory', 'collection']
 
 
 class CreateReviewSerializer(serializers.ModelSerializer):
@@ -46,13 +43,23 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['title', 'content']
 
 
-class CreateCartSerializer(serializers.ModelSerializer):
+class CartProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Cart
-        fields = ['customer']
+        model = Product
+        fields = ['title', 'description', 'price']
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = CartProductSerializer()
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'quantity', 'product']
 
 
 class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True)
+
     class Meta:
         model = Cart
-        fields = ['created_at', 'customer']
+        fields = ['id', 'items']

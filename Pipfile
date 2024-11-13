@@ -5,10 +5,11 @@ name = "pypi"
 
 [packages]
 django = "*"
-mysqlclient = "*"
 python-dotenv = "*"
 djangorestframework = "*"
 drf-nested-routers = "*"
+django-filter = "*"
+mysqlclient = "*"
 
 [dev-packages]
 
