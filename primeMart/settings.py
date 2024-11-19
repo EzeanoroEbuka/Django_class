@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -140,17 +141,31 @@ INTERNAL_IPS = [
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
-    'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
 
         'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
     )
-
 }
 
 DJOSER = {
-    'SERIALIZERS': {
-        'user_create': 'user.serializer.UserSerializer'
 
-    }
+    'SEND_ACTIVATION_EMAIL': True,
+    'SERIALIZERS': {
+        'user_create': 'user.serializer.UserSerializer',
+        'token_create': 'djoser.serializers.TokenCreateSerializer',
+    },
 }
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
+
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend',
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = ''
+EMAIL_USE_TLS = True
+EMAIL_HOST_PASSWORD = os.getenv('APP_PASSWORD')
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'info@primeMart.com'

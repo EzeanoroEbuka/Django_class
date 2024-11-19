@@ -47,7 +47,7 @@ class Order(models.Model):
 
     place_at = models.DateTimeField(auto_now_add=True)
 
-    payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS, default='P')
+    payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS, default='Pending')
 
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
@@ -62,7 +62,7 @@ class CartItem(models.Model):
 
 class OrderItem(models.Model):
 
-    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='order_item')
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 

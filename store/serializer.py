@@ -1,8 +1,10 @@
 import decimal
 from decimal import Decimal
-
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from store.models import Product, Collection, Review, Cart, CartItem
+from store.models import Product, Collection, Review, Cart, CartItem, Order, OrderItem
+from user.models import Customer
+from django.db import transaction
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -63,6 +65,12 @@ class CartItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'quantity', 'product', 'total_price']
 
 
+class CreateCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['id', 'created_at']
+
+
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True)
 
@@ -77,3 +85,69 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'items', 'total_price']
+
+
+class AddToCartSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
+
+    def save(self, **kwargs):
+        cart_id = self.context['cart_id']
+        product_id = self.validated_data['product_id']
+        quantity = self.validated_data['quantity']
+        try:
+            cart_item = CartItem.objects.get(cart_id=cart_id, product_id=product_id)
+            cart_item.quantity += quantity
+            cart_item.save()
+            self.instance = cart_item
+        except CartItem.DoesNotExist:
+            self.instance = CartItem.objects.create(cart_id=cart_id, **self.validated_data)
+            return self.instance
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product_id', 'quantity']
+
+
+class UpdateCartItem(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['quantity']
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = CartProductSerializer()
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'order', 'product', 'unit_price', 'quantity']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    order_item = OrderItemSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'place_at', 'payment_status', 'customer', 'order_item']
+
+
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.IntegerField()
+
+    def save(self, **kwargs):
+        with transaction.atomic():
+            cart_id = self.validated_data['cart_id']
+            user_id = self.context['user_id']
+            customer = get_object_or_404(Customer, id=user_id)
+            order = Order.objects.create(customer=customer)
+            cart_item = CartItem.objects.filter(cart_id=cart_id)
+
+            order_items = [
+                OrderItem(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    unit_price=item.product.price
+                ) for item in cart_item
+            ]
+            OrderItem.objects.bulk_create(order_items)
+            Cart.objects.get(id=cart_id).delete()
